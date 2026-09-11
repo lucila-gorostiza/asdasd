@@ -1,0 +1,307 @@
+<!DOCTYPE html>
+<html lang="es-AR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>{{TITULO}}</title>
+<meta name="description" content="El Parte: diario político-informativo diario para Belgrano y Núñez. Nacional, internacional, Fórmula 1, música, barrio y transporte.">
+<style>
+  /* ============================================================
+     EL PARTE — sistema de diseño "Riso" (typeui.sh pull riso)
+     primary #F237A1 · secondary #2C40A7 · text #111827
+     Space Grotesk / Overpass Mono · escala 4/8/12/16/24/32
+     ============================================================ */
+
+  :root{
+    --pink:#F237A1;
+    --blue:#2C40A7;
+    --green:#16A34A;
+    --amber:#D97706;
+    --red:#DC2626;
+    --ink:#111827;
+    --paper:#FBF7F0;
+    --surface:#FFFFFF;
+    --muted:#5B6474;
+    --line:rgba(17,24,39,.14);
+
+    --s1:4px; --s2:8px; --s3:12px; --s4:16px; --s5:24px; --s6:32px;
+    --r-sm:4px; --r-md:8px;
+
+    --sans:"Space Grotesk","Space Grotesk Variable",-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif;
+    --mono:"Overpass Mono","Roboto Mono",ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;
+  }
+
+  *{box-sizing:border-box}
+  html{-webkit-text-size-adjust:100%}
+  body{
+    margin:0;
+    background-color:var(--paper);
+    background-image:radial-gradient(circle at 1px 1px, rgba(44,64,167,.09) 1px, transparent 0);
+    background-size:7px 7px;
+    color:var(--ink);
+    font-family:var(--sans);
+    font-size:16px;
+    line-height:1.6;
+    font-weight:400;
+  }
+  .wrap{max-width:940px;margin:0 auto;padding:0 var(--s4) var(--s6)}
+
+  /* ---------- etiquetas mono ---------- */
+  .mono{font-family:var(--mono);font-size:12px;letter-spacing:.1em;text-transform:uppercase}
+
+  /* ---------- cabecera ---------- */
+  header.masthead{
+    background:var(--blue);
+    color:#fff;
+    border-bottom:4px solid var(--pink);
+    padding:var(--s5) 0 var(--s4);
+    margin-bottom:var(--s5);
+    background-image:radial-gradient(circle at 1px 1px, rgba(242,55,161,.5) 1px, transparent 0);
+    background-size:8px 8px;
+  }
+  .masthead .wrap{padding-bottom:0}
+  .brandrow{display:flex;flex-wrap:wrap;align-items:flex-end;justify-content:space-between;gap:var(--s3)}
+  h1.logo{
+    font-size:clamp(44px,11vw,88px);
+    line-height:.86;
+    margin:0;
+    font-weight:900;
+    letter-spacing:-.035em;
+    color:#fff;
+    text-shadow:3px 3px 0 var(--pink);
+  }
+  .tagline{
+    font-family:var(--mono);
+    font-size:12px;
+    letter-spacing:.14em;
+    text-transform:uppercase;
+    color:rgba(255,255,255,.9);
+    margin-top:var(--s2);
+    max-width:34ch;
+  }
+  .dateblock{
+    font-family:var(--mono);
+    font-size:12px;
+    line-height:1.7;
+    text-align:right;
+    text-transform:uppercase;
+    letter-spacing:.08em;
+    color:rgba(255,255,255,.95);
+    border-left:3px solid var(--pink);
+    padding-left:var(--s3);
+  }
+  .dateblock strong{display:block;font-size:14px;color:#fff}
+
+  /* ---------- portada / resumen ---------- */
+  .lede{
+    background:var(--surface);
+    border:2px solid var(--ink);
+    border-radius:var(--r-md);
+    box-shadow:5px 5px 0 var(--pink);
+    padding:var(--s5);
+    margin-bottom:var(--s6);
+  }
+  .lede h2{
+    font-size:13px;
+    font-family:var(--mono);
+    letter-spacing:.14em;
+    text-transform:uppercase;
+    color:var(--blue);
+    margin:0 0 var(--s3);
+  }
+  ol.index{margin:0;padding-left:var(--s5)}
+  ol.index li{margin-bottom:var(--s2);font-size:17px;font-weight:500;line-height:1.45}
+  ol.index li::marker{color:var(--pink);font-weight:700;font-family:var(--mono)}
+  ol.index li:last-child{margin-bottom:0}
+
+  /* ---------- secciones ---------- */
+  section{margin-bottom:var(--s6)}
+  .sechead{
+    display:flex;align-items:center;gap:var(--s3);
+    background:var(--ink);color:#fff;
+    border-radius:var(--r-sm);
+    padding:var(--s2) var(--s3);
+    margin-bottom:var(--s4);
+    position:sticky;top:0;z-index:5;
+  }
+  .secnum{
+    font-family:var(--mono);font-size:14px;font-weight:700;
+    background:var(--pink);color:#fff;
+    border-radius:var(--r-sm);
+    padding:2px 8px;
+  }
+  .sechead h2{
+    margin:0;font-size:16px;font-weight:700;
+    letter-spacing:.08em;text-transform:uppercase;
+    font-family:var(--mono);
+  }
+  .sechead .secmeta{
+    margin-left:auto;font-family:var(--mono);font-size:11px;
+    color:rgba(255,255,255,.65);letter-spacing:.1em;text-transform:uppercase;
+    white-space:nowrap;
+  }
+
+  /* ---------- notas ---------- */
+  article.item{
+    background:var(--surface);
+    border:1px solid var(--line);
+    border-left:5px solid var(--blue);
+    border-radius:var(--r-md);
+    padding:var(--s4) var(--s5);
+    margin-bottom:var(--s4);
+  }
+  article.item.lead{border-left-color:var(--pink);box-shadow:4px 4px 0 rgba(44,64,167,.16)}
+  .kicker{
+    font-family:var(--mono);font-size:12px;font-weight:700;
+    letter-spacing:.14em;text-transform:uppercase;
+    color:var(--pink);
+    display:block;margin-bottom:var(--s1);
+  }
+  article.item h3{
+    margin:0 0 var(--s3);
+    font-size:clamp(21px,3.1vw,27px);
+    line-height:1.22;
+    font-weight:700;
+    letter-spacing:-.02em;
+  }
+  article.item p{margin:0 0 var(--s3);color:#1F2937}
+  article.item p:last-child{margin-bottom:0}
+  article.item a{color:var(--blue);text-underline-offset:2px}
+
+  /* ---------- chips de estado ---------- */
+  .chip{
+    display:inline-block;
+    font-family:var(--mono);font-size:11px;font-weight:700;
+    letter-spacing:.1em;text-transform:uppercase;
+    border-radius:var(--r-sm);
+    padding:3px 8px;
+    margin:0 var(--s1) var(--s3) 0;
+    border:1px solid currentColor;
+  }
+  .chip.blue{color:var(--blue);background:rgba(44,64,167,.10)}
+  .chip.pink{color:var(--pink);background:rgba(242,55,161,.10)}
+  .chip.green{color:#0F7A36;background:rgba(22,163,74,.12)}
+  .chip.amber{color:#9A5700;background:rgba(217,119,6,.14)}
+  .chip.red{color:var(--red);background:rgba(220,38,38,.10)}
+  .chip.grey{color:var(--muted);background:rgba(17,24,39,.06)}
+
+  /* ---------- por qué importa ---------- */
+  .why{
+    border-left:4px solid var(--pink);
+    background:rgba(242,55,161,.055);
+    border-radius:0 var(--r-sm) var(--r-sm) 0;
+    padding:var(--s3) var(--s4);
+    margin-top:var(--s4);
+  }
+  .why span{
+    display:block;
+    font-family:var(--mono);font-size:11px;font-weight:700;
+    letter-spacing:.14em;text-transform:uppercase;
+    color:var(--pink);
+    margin-bottom:var(--s1);
+  }
+  .why p{margin:0;font-size:15px;line-height:1.55}
+
+  /* ---------- líneas de "sin novedad" ---------- */
+  .brief{
+    display:flex;gap:var(--s3);align-items:flex-start;
+    background:var(--surface);
+    border:1px dashed var(--line);
+    border-radius:var(--r-sm);
+    padding:var(--s3) var(--s4);
+    margin-bottom:var(--s2);
+    font-size:15px;
+  }
+  .brief b{font-family:var(--mono);font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:var(--blue);white-space:nowrap;padding-top:3px;min-width:96px}
+  .brief p{margin:0;color:#374151}
+
+  /* ---------- tabla F1 ---------- */
+  .tablewrap{overflow-x:auto;border:1px solid var(--line);border-radius:var(--r-md);background:var(--surface);margin-bottom:var(--s4)}
+  table{border-collapse:collapse;width:100%;min-width:460px;font-size:15px}
+  caption{
+    text-align:left;font-family:var(--mono);font-size:11px;letter-spacing:.12em;
+    text-transform:uppercase;color:var(--muted);padding:var(--s3) var(--s4) var(--s2);
+  }
+  th,td{padding:var(--s2) var(--s4);text-align:left;border-bottom:1px solid var(--line)}
+  thead th{
+    background:var(--blue);color:#fff;
+    font-family:var(--mono);font-size:11px;font-weight:700;
+    letter-spacing:.1em;text-transform:uppercase;
+  }
+  tbody tr:last-child td{border-bottom:none}
+  td.pos{font-family:var(--mono);color:var(--pink);font-weight:700;width:40px}
+  td.pts{font-family:var(--mono);font-weight:700;text-align:right}
+  tr.hl td{background:rgba(242,55,161,.07)}
+  tr.hl td.driver{font-weight:700}
+
+  /* ---------- semáforo transporte ---------- */
+  .lines{display:grid;grid-template-columns:repeat(auto-fit,minmax(210px,1fr));gap:var(--s3);margin-bottom:var(--s4)}
+  .line{
+    background:var(--surface);
+    border:1px solid var(--line);
+    border-top:5px solid var(--green);
+    border-radius:var(--r-md);
+    padding:var(--s3) var(--s4);
+  }
+  .line.watch{border-top-color:var(--amber)}
+  .line.alert{border-top-color:var(--red)}
+  .line .num{font-size:30px;font-weight:900;letter-spacing:-.03em;line-height:1.1}
+  .line .st{font-family:var(--mono);font-size:11px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:#0F7A36}
+  .line.watch .st{color:#9A5700}
+  .line.alert .st{color:var(--red)}
+  .line p{margin:var(--s1) 0 0;font-size:14px;color:var(--muted);line-height:1.45}
+
+  /* ---------- pie ---------- */
+  footer{
+    border-top:4px solid var(--pink);
+    background:var(--ink);
+    color:#E5E7EB;
+    padding:var(--s5) 0 var(--s6);
+    margin-top:var(--s6);
+  }
+  footer h2{
+    font-family:var(--mono);font-size:12px;letter-spacing:.14em;text-transform:uppercase;
+    color:var(--pink);margin:0 0 var(--s3);
+  }
+  footer p{font-size:14px;line-height:1.6;color:#D1D5DB;margin:0 0 var(--s3);max-width:72ch}
+  .sources{
+    display:flex;flex-wrap:wrap;gap:var(--s2);
+    font-family:var(--mono);font-size:11px;letter-spacing:.06em;
+    margin-bottom:var(--s5);
+  }
+  .sources span{
+    border:1px solid rgba(229,231,235,.3);
+    border-radius:var(--r-sm);
+    padding:3px 8px;
+    color:#E5E7EB;
+  }
+  .balance{
+    border-left:4px solid var(--pink);
+    padding-left:var(--s4);
+  }
+  .colofon{
+    margin-top:var(--s5);padding-top:var(--s4);
+    border-top:1px solid rgba(229,231,235,.2);
+    font-family:var(--mono);font-size:11px;letter-spacing:.08em;
+    text-transform:uppercase;color:#9CA3AF;
+  }
+
+  @media (max-width:640px){
+    .brandrow{align-items:flex-start;flex-direction:column}
+    .dateblock{text-align:left}
+    article.item{padding:var(--s4)}
+    .brief{flex-direction:column;gap:var(--s1)}
+    .sechead{position:static}
+  }
+  @media print{
+    body{background:#fff}
+    .sechead{position:static}
+  }
+</style>
+</head>
+<body>
+
+{{CUERPO}}
+
+</body>
+</html>
