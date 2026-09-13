@@ -70,7 +70,12 @@ preferible no publicar a publicar una edición rota. Chequea las restricciones
 de este §0 (JavaScript, recursos externos, `@import`, `prefers-color-scheme`,
 `lang`, un solo `<style>`), la numeración 01–06 del §6.3, los 3 ítems exactos
 del índice del §6.2, el máximo de una `.lead` por sección del §7, que ningún
-`.why` caiga dentro de un `.brief` (§6.6) y que las etiquetas cierren bien.
+`.why` caiga dentro de un `.brief` (§6.6), que las etiquetas cierren bien y que
+no haya quedado ningún marcador `{{...}}` sin reemplazar.
+
+Además de `{{TITULO}}` y `{{CUERPO}}`, `armar.py` reemplaza `{{HORA_CIERRE}}`
+por la hora real de esa corrida en ART (ver §6.1): es el único de los tres que
+no viene de `cuerpo.html` tal cual, sino que se calcula en el momento de armar.
 
 ---
 
@@ -194,6 +199,14 @@ Adentro, `.brandrow` en flex con `justify-content:space-between`:
 - derecha: `.dateblock` mono alineado a la derecha, con `border-left:3px solid var(--pink)`,
   fecha completa en `<strong>` y la hora de cierre en ART.
 
+  **La hora de cierre nunca se tipea a mano.** En `cuerpo.html` va el marcador
+  `{{HORA_CIERRE}}` (tanto en el `.dateblock` como en el `.colofon` del pie,
+  §6.10) y `armar.py` lo reemplaza por la hora real, tomada del reloj en el
+  momento de esa corrida, en ART (UTC-3 fijo). Escribir una hora fija ahí —o
+  copiarla de la edición anterior— es exactamente el bug que este mecanismo
+  vino a resolver: la hora que mostraba el diario no era la hora real en que
+  se había armado la edición.
+
 ### 6.2 `.lede` — "Lo que ordena el día"
 Tarjeta blanca, `border:2px solid var(--ink)`, radio 8, desfase rosa de 5px.
 Contiene una `<ol class="index">` con **exactamente 3 ítems**: los tres títulos
@@ -311,9 +324,11 @@ Esta es la parte que importa más que los píxeles.
 tipografía, numeración 01–06 de las secciones, `.lede` de tres ítems, pie de
 fuentes y equilibrio.
 
-**Cambia todos los días**: fecha y hora de cierre (ART) en el `.dateblock`, el
-`<title>`, el `.colofon`, los tres ítems del índice, y qué nota lleva `.lead` en
-cada sección.
+**Cambia todos los días**: fecha en el `.dateblock`, el `<title>`, el `.colofon`,
+los tres ítems del índice, y qué nota lleva `.lead` en cada sección. La *hora*
+de cierre también cambia todos los días, pero no la escribís vos: es el
+marcador `{{HORA_CIERRE}}` (§6.1), que `armar.py` completa solo con la hora
+real de esa corrida.
 
 Lo estable vive en `plantilla.html` y lo diario en `cuerpo.html` (§0.1), así que
 en la práctica **una edición nueva toca `cuerpo.html` y nada más**.

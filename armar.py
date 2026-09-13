@@ -10,6 +10,7 @@ Uso:  python3 armar.py
 """
 import re
 import sys
+from datetime import datetime, timedelta, timezone
 from html.parser import HTMLParser
 from pathlib import Path
 
@@ -17,6 +18,21 @@ RAIZ = Path(__file__).resolve().parent
 PLANTILLA = RAIZ / "plantilla.html"
 CUERPO = RAIZ / "cuerpo.html"
 SALIDA = RAIZ / "index.html"
+
+# Argentina está en UTC-3 fijo (sin horario de verano desde 2009): un offset
+# fijo es más confiable acá que zoneinfo, que depende de que el sistema tenga
+# la base tzdata instalada.
+ART = timezone(timedelta(hours=-3))
+
+
+def hora_cierre_art():
+    """Hora real de cierre en ART, HH:MM, tomada del reloj al correr armar.py.
+
+    cuerpo.html no debe hardcodear una hora: va el marcador {{HORA_CIERRE}},
+    que se reemplaza acá con la hora real de esta corrida. Así el dateblock y
+    el colofón siempre reflejan cuándo se armó la edición, en vez de arrastrar
+    el valor de la edición anterior (lo que pasaba antes de este cambio)."""
+    return datetime.now(ART).strftime("%H:%M")
 
 
 def leer_cuerpo():
@@ -52,6 +68,11 @@ def validar(html):
         e.append('§0: falta lang="es-AR"')
     if html.count("<style") != 1:
         e.append("§0: debe haber exactamente un bloque <style> embebido")
+
+    # --- marcadores: ninguno debe quedar sin reemplazar ---
+    sin_reemplazar = re.findall(r"\{\{[A-Z_]+\}\}", html)
+    if sin_reemplazar:
+        e.append(f"quedaron marcadores sin reemplazar: {sorted(set(sin_reemplazar))}")
 
     # --- §6.3: numeración fija de secciones ---
     nums = re.findall(r'class="secnum">(\d+)<', html)
@@ -135,6 +156,7 @@ def main():
         PLANTILLA.read_text(encoding="utf-8")
         .replace("{{TITULO}}", titulo)
         .replace("{{CUERPO}}", cuerpo)
+        .replace("{{HORA_CIERRE}}", hora_cierre_art())
     )
 
     errores = validar(html)
