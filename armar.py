@@ -6,7 +6,9 @@ Antes de escribir, valida las restricciones duras del §0 de CLAUDE.md y la
 estructura fija del §6. Si algo falla, NO escribe el archivo y sale con código 1:
 el diario no se publica a medias.
 
-Uso:  python3 armar.py
+Uso:  python3 armar.py              # arma y valida index.html
+      python3 armar.py --validar    # sólo valida el index.html existente, sin
+                                    # reescribirlo (lo usa el deploy en CI, §10)
 """
 import re
 import sys
@@ -146,7 +148,21 @@ def salir(errores):
     sys.exit(1)
 
 
+def solo_validar():
+    """Revalida el index.html ya generado, sin tocarlo. El deploy de CI corre
+    esto antes de publicar: rearmar ahí cambiaría la {{HORA_CIERRE}} por la
+    hora del runner, que no es la hora en que se cerró la edición."""
+    if not SALIDA.exists():
+        salir(["falta index.html: corré python3 armar.py primero"])
+    errores = validar(SALIDA.read_text(encoding="utf-8"))
+    if errores:
+        salir(errores)
+    print("index.html: validaciones §0 y §6 en orden.")
+
+
 def main():
+    if sys.argv[1:] == ["--validar"]:
+        return solo_validar()
     for f in (PLANTILLA, CUERPO):
         if not f.exists():
             salir([f"falta {f.name}"])

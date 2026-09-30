@@ -51,6 +51,7 @@ En el repo, lo que cambia y lo que no viven separados:
 | `cuerpo.html` | la edición del día. Primera línea: `<!-- TITULO: ... -->`. | todos los días |
 | `armar.py` | los junta y **valida** antes de escribir | casi nunca |
 | `index.html` | **generado**. Es lo que se publica. | todos los días |
+| `.github/workflows/deploy-cloudflare.yml` | el deploy a Cloudflare Pages (§10) | casi nunca |
 
 ```
 python3 armar.py     # plantilla.html + cuerpo.html -> index.html
@@ -349,42 +350,70 @@ anterior al GP de Países Bajos) y la fecha de salida del disco de Dillom.
 
 ## 10. Publicación
 
+**El diario se publica en Cloudflare Pages, proyecto `el-parte`. Vercel no se
+usa más** (se abandonó el 30/9/2026: el conector perdió acceso a la cuenta y la
+edición del 29/9 no salió). No llames a `deploy_to_vercel` ni a ninguna
+herramienta de Vercel, aunque el prompt de la rutina todavía la nombre: este
+archivo manda sobre el prompt en todo lo que sea deploy.
+
+### Cómo funciona
+
+El deploy **no se hace desde la sesión**: el proxy del contenedor bloquea
+`api.cloudflare.com` y no hay conector de Cloudflare. Lo hace GitHub Actions,
+con `.github/workflows/deploy-cloudflare.yml`:
+
+- se dispara solo con cada push a `main` que cambie `index.html`;
+- revalida el `index.html` commiteado con `python3 armar.py --validar` (no lo
+  rearma: eso le cambiaría la hora de cierre) y, si falla, no publica;
+- sube **sólo** `index.html` a Cloudflare Pages como deploy de producción
+  (`--branch=main`). `plantilla.html`, `cuerpo.html`, `armar.py` y los `.md`
+  nunca llegan al sitio;
+- usa los secrets `CLOUDFLARE_API_TOKEN` (permiso *Cloudflare Pages: Edit*) y
+  `CLOUDFLARE_ACCOUNT_ID` del repo.
+
+El workflow usa `wrangler` (la CLI de Cloudflare) en el runner de GitHub. Eso
+no choca con el "ni npm, ni bundlers" del §0: `wrangler` sólo sube el archivo,
+no lo transforma, y el `index.html` publicado es byte a byte el commiteado.
+
+En la práctica: **el fast-forward a `main` del §11 es el deploy.** Por eso ahora
+el orden de la corrida es armar → commitear → push → fast-forward a `main` →
+confirmar el deploy.
+
 Primero `python3 armar.py` (§0.1). Si falla, **no se publica**: se arregla
-`cuerpo.html` y se vuelve a armar.
+`cuerpo.html` y se vuelve a armar. Como `armar.py` no escribe `index.html`
+cuando falla, un push de esa corrida no dispara el workflow.
 
-Deploy a Vercel con `deploy_to_vercel`, **proyecto `el-parte`** (siempre el
-mismo, nunca uno nuevo), `target: "production"`, `projectSettings` con
-`framework: null` y los comandos en `null` — es HTML estático, no hay build.
+### Cómo confirmar que salió
 
-La herramienta manda el contenido **inline**: no acepta una ruta de archivo, así
-que el HTML entero viaja en el parámetro `data`. Mandá el `index.html` ya
-generado, nunca `plantilla.html` (que tiene los marcadores sin reemplazar) ni un
-placeholder.
+`*.pages.dev` no se puede abrir desde la sesión, así que la señal de que la
+edición está publicada es **la corrida del workflow en GitHub**, que sí se lee
+con las herramientas `mcp__github__*`:
 
-Se evaluó conectar el proyecto al repo con `create_git_project` para que el push
-fuera el deploy y ahorrarse esos ~45 KB inline. **Se descartó a propósito**: el
-deploy por git es asincrónico y haría perder el `READY`, que —con `*.vercel.app`
-bloqueado y el token sin permiso de lectura sobre el scope— es la única señal de
-que la edición salió. En una rutina desatendida, saber que se publicó vale más
-que el ahorro. No lo "optimices" sin volver a plantearlo.
+1. después del push a `main`, buscá la corrida de "Deploy a Cloudflare Pages"
+   cuyo `head_sha` sea el commit de la edición (`actions_list`, listando las
+   corridas del workflow `deploy-cloudflare.yml`);
+2. si está `queued` o `in_progress`, esperá y volvé a consultar: tarda uno o
+   dos minutos;
+3. `conclusion: success` = publicada. Cualquier otra cosa (`failure`,
+   `cancelled`) = **no publicada**: leé el log del job (`get_job_logs`) y contá
+   el error en el resumen. Si parece transitorio, relanzalo una sola vez con
+   `actions_run_trigger` (`workflow_dispatch`).
 
-En esta sesión el proxy de red bloquea el dominio `*.vercel.app` y el token no
-tiene permiso de lectura sobre el scope de la cuenta, así que **no se puede
-verificar la URL publicada desde acá**: el único indicador confiable es el
-`READY` que devuelve la herramienta de deploy. Decilo así en el resumen, sin
-afirmar que la viste.
-
----
+La URL de producción es `https://el-parte.pages.dev`. Decí en el resumen que
+el deploy se confirmó por la corrida de Actions, sin afirmar que viste la
+página. Si Cloudflare le asignó otro subdominio al proyecto (pasa cuando
+`el-parte` ya está tomado), la URL real figura en el resumen de la corrida:
+usá esa.
 
 ## 11. Cierre de la corrida: la edición tiene que quedar en `main`
 
 Cada ejecución de la rutina trabaja sobre una rama autogenerada distinta
-(`claude/algo-aleatorio`). **Si la edición se queda ahí, `main` no avanza**, y la
+(`claude/algo-aleatorio`). **Si la edición se queda ahí, `main` no avanza**: la
 corrida del día siguiente lee como "la edición de ayer" una que en realidad es
-de hace días: repite correcciones ya hechas y arrastra datos viejos. Pasó el
-6/9/2026, cuando `main` había quedado en la edición del 5/9.
+de hace días, y además **no se publica**, porque el deploy sale de `main`
+(§10). Pasó el 6/9/2026, cuando `main` había quedado en la edición del 5/9.
 
-Por eso, después de publicar:
+Por eso, apenas `armar.py` pasa:
 
 ```bash
 git add -A && git commit -m "Edición del <día> de <mes> de <año>"
@@ -396,14 +425,17 @@ git merge-base --is-ancestor origin/main HEAD \
   || echo "divergencia: NO mergear, reportarlo en el resumen"
 ```
 
+Y después confirmá el deploy como dice el §10.
+
 **El dueño del repo autorizó este merge de forma permanente** (6/9/2026), así que
 no hace falta volver a pedirlo en cada corrida. La autorización cubre exactamente
 esto y nada más:
 
 - **Sólo fast-forward.** Verificá primero que `origin/main` sea ancestro del HEAD,
   como en el comando de arriba. Si divergieron, **frená**: no mergees, no fuerces,
-  y contalo en el resumen.
+  y contá en el resumen que la edición **no se publicó** (sin llegar a `main`
+  no hay deploy).
 - **Nunca** `--force`, `--force-with-lease` ni reescritura de historia sobre `main`.
-- Si el `armar.py` no pasó o el deploy no devolvió `READY`, igual commiteá y
-  pusheá el trabajo, pero **decí claramente en el resumen que la edición no se
-  publicó**, para que no parezca una corrida normal.
+- Si el `armar.py` no pasó o la corrida de Actions no terminó en `success`,
+  igual commiteá y pusheá el trabajo, pero **decí claramente en el resumen que
+  la edición no se publicó**, para que no parezca una corrida normal.
