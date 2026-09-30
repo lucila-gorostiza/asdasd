@@ -51,6 +51,7 @@ En el repo, lo que cambia y lo que no viven separados:
 | `cuerpo.html` | la edición del día. Primera línea: `<!-- TITULO: ... -->`. | todos los días |
 | `armar.py` | los junta y **valida** antes de escribir | casi nunca |
 | `index.html` | **generado**. Es lo que se publica. | todos los días |
+| `logo/` | el ícono del diario: fuentes y archivos que se publican (§6.0) | casi nunca |
 | `.github/workflows/deploy-cloudflare.yml` | el deploy a Cloudflare Pages (§10) | casi nunca |
 
 ```
@@ -192,6 +193,25 @@ de transporte.
 ## 6. Componentes
 
 Orden de la página: `masthead` → `.lede` → 6 `section` → `footer`.
+
+### 6.0 Ícono del diario (favicon e ícono de celular)
+Es la "P" serif en tinta con punto rosa, y vive en `logo/` (ver `logo/README.md`).
+Va **en todas las ediciones**, y ya está resuelto en el `<head>` de
+`plantilla.html`, así que no hay que tocar nada en la corrida diaria:
+
+- **pestaña del navegador**: `icon.svg` y `favicon-32.png` van **embebidos**
+  como `data:` en el `<head>`, así el `index.html` sigue siendo un solo archivo
+  que se abre solo, sin servidor (§0);
+- **ícono al agregarlo a la pantalla de inicio del celular**:
+  `apple-touch-icon.png` (iPhone) y `site.webmanifest` con `icon-192/512` y la
+  versión *maskable* (Android). Esos no se pueden embeber (el manifest necesita
+  URL propia), así que el deploy los publica **al lado** del `index.html`
+  (§10). Son archivos del mismo sitio, no dependencias externas;
+- `theme-color` `#141827`.
+
+`armar.py` falla si al `<head>` le falta el ícono o si falta algún archivo de
+`logo/`. Si alguna vez se cambia el logo, se reemplazan los archivos de `logo/`
+y el `data:` del `<head>` de `plantilla.html`.
 
 ### 6.1 `header.masthead`
 Ancho completo en azul con trama rosa, `border-bottom:4px solid var(--pink)`.
@@ -365,15 +385,18 @@ con `.github/workflows/deploy-cloudflare.yml`:
 - se dispara solo con cada push a `main` que cambie `index.html`;
 - revalida el `index.html` commiteado con `python3 armar.py --validar` (no lo
   rearma: eso le cambiaría la hora de cierre) y, si falla, no publica;
-- sube **sólo** `index.html` a Cloudflare Pages como deploy de producción
-  (`--branch=main`). `plantilla.html`, `cuerpo.html`, `armar.py` y los `.md`
-  nunca llegan al sitio;
+- sube `index.html` más los archivos del ícono de `logo/` (§6.0) a Cloudflare
+  Pages como deploy de producción (`--branch=main`). `plantilla.html`,
+  `cuerpo.html`, `armar.py` y los `.md` nunca llegan al sitio;
 - usa los secrets `CLOUDFLARE_API_TOKEN` (permiso *Cloudflare Pages: Edit*) y
   `CLOUDFLARE_ACCOUNT_ID` del repo.
 
 El workflow usa `wrangler` (la CLI de Cloudflare) en el runner de GitHub. Eso
 no choca con el "ni npm, ni bundlers" del §0: `wrangler` sólo sube el archivo,
 no lo transforma, y el `index.html` publicado es byte a byte el commiteado.
+Los archivos del ícono que viajan al lado (§6.0) son una excepción pedida
+explícitamente por la dueña del diario (30/9/2026) para que funcione el ícono
+de celular; la página en sí sigue siendo un único archivo autocontenido.
 
 En la práctica: **el fast-forward a `main` del §11 es el deploy.** Por eso ahora
 el orden de la corrida es armar → commitear → push → fast-forward a `main` →

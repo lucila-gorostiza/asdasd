@@ -20,6 +20,10 @@ RAIZ = Path(__file__).resolve().parent
 PLANTILLA = RAIZ / "plantilla.html"
 CUERPO = RAIZ / "cuerpo.html"
 SALIDA = RAIZ / "index.html"
+LOGO = RAIZ / "logo"
+# Lo que se publica junto al index.html para el ícono de celular (§6.0, §10).
+ARCHIVOS_ICONO = ["favicon.ico", "icon.svg", "apple-touch-icon.png", "icon-192.png",
+                  "icon-512.png", "icon-maskable-512.png", "site.webmanifest"]
 
 # Argentina está en UTC-3 fijo (sin horario de verano desde 2009): un offset
 # fijo es más confiable acá que zoneinfo, que depende de que el sistema tenga
@@ -70,6 +74,16 @@ def validar(html):
         e.append('§0: falta lang="es-AR"')
     if html.count("<style") != 1:
         e.append("§0: debe haber exactamente un bloque <style> embebido")
+
+    # --- §6.0: el ícono del diario va en todas las ediciones ---
+    for marca in ('rel="icon" type="image/svg+xml" href="data:',
+                  'rel="apple-touch-icon" href="apple-touch-icon.png"',
+                  'rel="manifest" href="site.webmanifest"'):
+        if marca not in html:
+            e.append(f"§6.0: falta el ícono del diario en el <head> ({marca})")
+    faltan = [f for f in ARCHIVOS_ICONO if not (LOGO / f).exists()]
+    if faltan:
+        e.append(f"§6.0: faltan archivos del ícono en logo/: {faltan}")
 
     # --- marcadores: ninguno debe quedar sin reemplazar ---
     sin_reemplazar = re.findall(r"\{\{[A-Z_]+\}\}", html)

@@ -4,7 +4,8 @@
 # que hace la rutina diaria (CLAUDE.md §11) ES el deploy. También se puede
 # lanzar a mano desde la pestaña Actions ("Run workflow").
 #
-# Sólo se publica index.html: plantilla.html, cuerpo.html, armar.py y los .md
+# Se publica index.html más los archivos del ícono de logo/ (favicon.ico, ícono
+# de celular y manifest). plantilla.html, cuerpo.html, armar.py y los .md
 # quedan fuera del sitio.
 #
 # Requiere dos secrets del repo (Settings → Secrets and variables → Actions):
@@ -17,6 +18,7 @@ on:
     branches: [main]
     paths:
       - index.html
+      - logo/**
       - .github/workflows/deploy-cloudflare.yml
   workflow_dispatch:
 
@@ -43,10 +45,13 @@ jobs:
       - name: Validar index.html
         run: python3 armar.py --validar
 
-      - name: Preparar el sitio (sólo index.html)
+      - name: Preparar el sitio (index.html + ícono)
         run: |
           mkdir -p sitio
           cp index.html sitio/index.html
+          cp logo/favicon.ico logo/icon.svg logo/apple-touch-icon.png \
+             logo/icon-192.png logo/icon-512.png logo/icon-maskable-512.png \
+             logo/site.webmanifest sitio/
 
       # Crea el proyecto la primera vez; en las siguientes ya existe y este
       # paso falla sin consecuencias. Si el problema es el token, el deploy de
