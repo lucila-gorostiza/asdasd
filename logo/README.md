@@ -16,11 +16,17 @@ P serif (DM Serif Display, convertida a trazo) en tinta #141827 sobre blanco, co
 ## Colores
 Tinta #141827 · Rosa #F23B98 · Fondo #FFFFFF
 
-## Integración (copiar todo a la carpeta pública del sitio)
-```html
-<link rel="icon" href="/favicon.ico" sizes="48x48">
-<link rel="icon" href="/icon.svg" type="image/svg+xml">
-<link rel="apple-touch-icon" href="/apple-touch-icon.png">
-<link rel="manifest" href="/site.webmanifest">
-<meta name="theme-color" content="#141827">
-```
+## Integración en El Parte
+
+Ya está integrado; no hay que copiar nada a mano (ver CLAUDE.md §6.0 y §10):
+
+- `plantilla.html` lleva en el `<head>` `icon.svg` y `favicon-32.png` embebidos
+  como `data:` (el `index.html` sigue siendo un solo archivo), más
+  `apple-touch-icon`, `manifest` y `theme-color` `#141827`.
+- El workflow de deploy publica junto al `index.html`: `favicon.ico`,
+  `icon.svg`, `apple-touch-icon.png`, `icon-192.png`, `icon-512.png`,
+  `icon-maskable-512.png` y `site.webmanifest` (con rutas relativas).
+- `armar.py` falla si falta el ícono en el `<head>` o alguno de esos archivos.
+
+Si se cambia el logo: reemplazar estos archivos y regenerar los `data:` del
+`<head>` de `plantilla.html`.

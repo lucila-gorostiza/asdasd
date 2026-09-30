@@ -5,6 +5,11 @@ Guía para armar cada edición diaria. La referencia canónica de lo estético e
 archivo antes que esta descripción.** Para el tono y el criterio editorial, mirá
 el `cuerpo.html` de la última edición.
 
+> **Este archivo manda sobre el prompt de la rutina** en diseño, organización
+> de archivos y deploy. Si el prompt dice otra cosa (por ejemplo, que se
+> publique con `deploy_to_vercel`), seguí lo que dice acá: el prompt se escribió
+> antes de los cambios del §12 y puede estar desactualizado.
+
 > Antes esta línea apuntaba al `index.html` del 5/9/2026. No servía como
 > referencia estable: `index.html` se sobrescribe en cada corrida, así que
 > "la edición del 5/9" dejaba de existir al día siguiente. Lo estable ahora
@@ -55,7 +60,8 @@ En el repo, lo que cambia y lo que no viven separados:
 | `.github/workflows/deploy-cloudflare.yml` | el deploy a Cloudflare Pages (§10) | casi nunca |
 
 ```
-python3 armar.py     # plantilla.html + cuerpo.html -> index.html
+python3 armar.py              # plantilla.html + cuerpo.html -> index.html
+python3 armar.py --validar    # sólo revalida el index.html existente (lo usa el deploy, §10)
 ```
 
 No edites `index.html` a mano: lo pisa el próximo `armar.py`. Editá `cuerpo.html`
@@ -72,8 +78,9 @@ preferible no publicar a publicar una edición rota. Chequea las restricciones
 de este §0 (JavaScript, recursos externos, `@import`, `prefers-color-scheme`,
 `lang`, un solo `<style>`), la numeración 01–06 del §6.3, los 3 ítems exactos
 del índice del §6.2, el máximo de una `.lead` por sección del §7, que ningún
-`.why` caiga dentro de un `.brief` (§6.6), que las etiquetas cierren bien y que
-no haya quedado ningún marcador `{{...}}` sin reemplazar.
+`.why` caiga dentro de un `.brief` (§6.6), que el `<head>` lleve el ícono del
+diario y que estén los archivos de `logo/` (§6.0), que las etiquetas cierren
+bien y que no haya quedado ningún marcador `{{...}}` sin reemplazar.
 
 Además de `{{TITULO}}` y `{{CUERPO}}`, `armar.py` reemplaza `{{HORA_CIERRE}}`
 por la hora real de esa corrida en ART (ver §6.1): es el único de los tres que
@@ -342,8 +349,8 @@ Esta es la parte que importa más que los píxeles.
 ## 9. Qué se mantiene y qué cambia entre ediciones
 
 **Estable** (el lector reconoce el diario por esto): masthead, paleta, trama,
-tipografía, numeración 01–06 de las secciones, `.lede` de tres ítems, pie de
-fuentes y equilibrio.
+tipografía, ícono del diario (§6.0), numeración 01–06 de las secciones, `.lede`
+de tres ítems, pie de fuentes y equilibrio.
 
 **Cambia todos los días**: fecha en el `.dateblock`, el `<title>`, el `.colofon`,
 los tres ítems del índice, y qué nota lleva `.lead` en cada sección. La *hora*
@@ -462,3 +469,34 @@ esto y nada más:
 - Si el `armar.py` no pasó o la corrida de Actions no terminó en `success`,
   igual commiteá y pusheá el trabajo, pero **decí claramente en el resumen que
   la edición no se publicó**, para que no parezca una corrida normal.
+
+---
+
+## 12. Registro de cambios de la estructura
+
+Qué cambió en el proyecto (no en el contenido de una edición) y por qué. Sirve
+para no deshacer decisiones sin saber de dónde vienen. Agregá una entrada cada
+vez que se toque la plantilla, `armar.py`, el deploy o esta guía.
+
+### 30/9/2026 — Cloudflare en lugar de Vercel, ícono del diario
+
+- **Publicación: Cloudflare Pages en lugar de Vercel** (§10). La edición del
+  29/9 no salió: el conector de Vercel perdió acceso a la cuenta
+  (`403 … scope "lucila-gorostiza"`). La dueña del diario pidió dejar Vercel
+  para siempre. Como desde la sesión no se llega a `api.cloudflare.com`, el
+  deploy lo hace GitHub Actions (`.github/workflows/deploy-cloudflare.yml`)
+  en cada push a `main`. La corrida del workflow es la nueva señal de "salió".
+- **`armar.py --validar`**: el workflow revalida el `index.html` commiteado
+  antes de publicarlo, sin rearmarlo (rearmar cambiaría la hora de cierre).
+- **Orden de la corrida** (§11): el fast-forward a `main` ahora *es* el
+  deploy, así que va antes de confirmar la publicación, no después.
+- **Ícono del diario** (§6.0): favicon embebido en `plantilla.html` e ícono de
+  celular + manifest en `logo/`, publicados junto al `index.html`. `armar.py`
+  valida que estén.
+- **Pendiente de configurar, fuera del repo** (lo hace la dueña, no la rutina):
+  1. cargar los secrets `CLOUDFLARE_API_TOKEN` y `CLOUDFLARE_ACCOUNT_ID` en
+     GitHub; hasta entonces el workflow falla con *"it's necessary to set a
+     CLOUDFLARE_API_TOKEN"*. Si una corrida ve ese error, no es un problema de
+     la edición: reportalo en el resumen como "deploy no configurado";
+  2. actualizar el prompt de la rutina, que todavía nombra `deploy_to_vercel`.
+
