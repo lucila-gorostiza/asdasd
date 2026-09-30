@@ -77,8 +77,8 @@ def validar(html):
 
     # --- §6.0: el ícono del diario va en todas las ediciones ---
     for marca in ('rel="icon" type="image/svg+xml" href="data:',
-                  'rel="apple-touch-icon" href="apple-touch-icon.png"',
-                  'rel="manifest" href="site.webmanifest"'):
+                  'rel="apple-touch-icon" href="logo/apple-touch-icon.png"',
+                  'rel="manifest" href="logo/site.webmanifest"'):
         if marca not in html:
             e.append(f"§6.0: falta el ícono del diario en el <head> ({marca})")
     faltan = [f for f in ARCHIVOS_ICONO if not (LOGO / f).exists()]

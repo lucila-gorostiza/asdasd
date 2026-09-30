@@ -500,3 +500,14 @@ vez que se toque la plantilla, `armar.py`, el deploy o esta guía.
      la edición: reportalo en el resumen como "deploy no configurado";
   2. actualizar el prompt de la rutina, que todavía nombra `deploy_to_vercel`.
 
+
+### 30/9/2026 (tarde) — Ícono bajo `logo/`, sitio en Cloudflare Workers
+
+- El sitio real vive en un **Worker de Cloudflare** (`asdasd.lucilagorostiza.workers.dev`,
+  Workers Builds desde `main`), no sólo en Pages. Ahí los archivos se sirven
+  desde la raíz del repo, así que `apple-touch-icon.png` y `site.webmanifest`
+  referenciados en la raíz daban 404 y el ícono no aparecía en el celular.
+- Ahora el `<head>` apunta a `logo/apple-touch-icon.png`, `logo/site.webmanifest`
+  (los íconos del manifest resuelven relativos a `logo/`) y `logo/favicon.ico`.
+  El workflow de Pages publica los mismos archivos en `sitio/logo/`.
+- `armar.py` valida las nuevas rutas.
