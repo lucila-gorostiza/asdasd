@@ -1,0 +1,8 @@
+{
+  // Worker "asdasd": lo que ve la dueña en https://asdasd.lucilagorostiza.workers.dev/
+  // Publica la raíz del repo, pero .assetsignore deja afuera todo salvo
+  // index.html y logo/ (CLAUDE.md §10).
+  "name": "asdasd",
+  "compatibility_date": "2026-09-30",
+  "assets": { "directory": "./" }
+}

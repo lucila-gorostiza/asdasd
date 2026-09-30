@@ -1,0 +1,5 @@
+# Sólo se publican index.html y logo/. Todo lo demás del repo queda afuera.
+*
+!index.html
+!logo
+!logo/**

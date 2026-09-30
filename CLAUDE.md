@@ -57,7 +57,7 @@ En el repo, lo que cambia y lo que no viven separados:
 | `armar.py` | los junta y **valida** antes de escribir | casi nunca |
 | `index.html` | **generado**. Es lo que se publica. | todos los días |
 | `logo/` | el ícono del diario: fuentes y archivos que se publican (§6.0) | casi nunca |
-| `.github/workflows/deploy-cloudflare.yml` | el deploy a Cloudflare Pages (§10) | casi nunca |
+| `wrangler.jsonc` y `.assetsignore` | qué publica el Worker de Cloudflare (§10) | casi nunca |
 
 ```
 python3 armar.py              # plantilla.html + cuerpo.html -> index.html
@@ -225,7 +225,7 @@ raíz: con `href="apple-touch-icon.png"` daban 404 y el ícono de celular no
 aparecía (30/9/2026). Los `icon-*.png` del manifest no llevan carpeta porque
 resuelven relativo a la URL del manifest, o sea, dentro de `logo/`.
 `armar.py` valida estas rutas exactas. **No las "simplifiques" ni muevas
-`logo/`** sin actualizar a la vez `plantilla.html`, `armar.py`, el workflow y
+`logo/`** sin actualizar a la vez `plantilla.html`, `armar.py`, `.assetsignore` y
 esta sección.
 
 `armar.py` falla si al `<head>` le falta el ícono o si falta algún archivo de
@@ -389,76 +389,51 @@ anterior al GP de Países Bajos) y la fecha de salida del disco de Dillom.
 
 ## 10. Publicación
 
-**El diario se publica en Cloudflare Pages, proyecto `el-parte`. Vercel no se
-usa más** (se abandonó el 30/9/2026: el conector perdió acceso a la cuenta y la
-edición del 29/9 no salió). No llames a `deploy_to_vercel` ni a ninguna
-herramienta de Vercel, aunque el prompt de la rutina todavía la nombre: este
-archivo manda sobre el prompt en todo lo que sea deploy.
+**El diario se publica en un Worker de Cloudflare llamado `asdasd`, y la URL
+es `https://asdasd.lucilagorostiza.workers.dev/`.** Esa es la única URL del
+diario. **No existe `el-parte.pages.dev`**: fue un intento con Cloudflare Pages
+que nunca se configuró y se eliminó el 30/9/2026. Vercel tampoco se usa (se
+abandonó el 30/9/2026: el conector perdió acceso a la cuenta). No llames a
+`deploy_to_vercel` ni a ninguna herramienta de Vercel, y no busques corridas de
+GitHub Actions: no hay workflow de deploy. Este archivo manda sobre el prompt
+de la rutina en todo lo que sea deploy.
 
 ### Cómo funciona
 
-> **Hay dos destinos y el que ve la dueña es el Worker.** El diario que ella
-> abre es `https://asdasd.lucilagorostiza.workers.dev/`, un Worker de
-> Cloudflare (`asdasd`) que se redespliega solo con cada push a `main`
-> (Workers Builds; se configura en el panel de Cloudflare, no está en el repo).
-> El proyecto de Pages `el-parte` y su workflow de Actions (abajo) son el
-> camino previsto originalmente y **siguen fallando por falta de secrets**.
-> Que el workflow esté en rojo no significa que el Worker no haya publicado, y
-> que esté en verde no significa que el Worker esté bien. Desde la sesión no se
-> puede abrir ninguno de los dos (el proxy da 403): si tenés dudas con el
-> logo, pedile a la dueña que abra
-> `…workers.dev/logo/apple-touch-icon.png` (debe verse la "P").
+El Worker se redespliega solo con cada push a `main` (Workers Builds, que se
+configura en el panel de Cloudflare y no está en el repo). Por eso **el
+fast-forward a `main` del §11 es el deploy.** El orden de la corrida es armar
+→ commitear → push → fast-forward a `main` → confirmar.
 
-El deploy **no se hace desde la sesión**: el proxy del contenedor bloquea
-`api.cloudflare.com` y no hay conector de Cloudflare. Lo hace GitHub Actions,
-con `.github/workflows/deploy-cloudflare.yml`:
-
-- se dispara solo con cada push a `main` que cambie `index.html`;
-- revalida el `index.html` commiteado con `python3 armar.py --validar` (no lo
-  rearma: eso le cambiaría la hora de cierre) y, si falla, no publica;
-- sube `index.html` más los archivos del ícono, que quedan en `logo/` del sitio
-  (§6.0) y `favicon.ico` también en la raíz, a Cloudflare Pages como deploy de
-  producción (`--branch=main`). `plantilla.html`,
-  `cuerpo.html`, `armar.py` y los `.md` nunca llegan al sitio;
-- usa los secrets `CLOUDFLARE_API_TOKEN` (permiso *Cloudflare Pages: Edit*) y
-  `CLOUDFLARE_ACCOUNT_ID` del repo.
-
-El workflow usa `wrangler` (la CLI de Cloudflare) en el runner de GitHub. Eso
-no choca con el "ni npm, ni bundlers" del §0: `wrangler` sólo sube el archivo,
-no lo transforma, y el `index.html` publicado es byte a byte el commiteado.
-Los archivos del ícono que viajan al lado (§6.0) son una excepción pedida
-explícitamente por la dueña del diario (30/9/2026) para que funcione el ícono
-de celular; la página en sí sigue siendo un único archivo autocontenido.
-
-En la práctica: **el fast-forward a `main` del §11 es el deploy.** Por eso ahora
-el orden de la corrida es armar → commitear → push → fast-forward a `main` →
-confirmar el deploy.
+Qué se publica lo decide `wrangler.jsonc` (`assets.directory: "./"`) junto con
+`.assetsignore`, que deja afuera todo salvo `index.html` y `logo/`.
+`plantilla.html`, `cuerpo.html`, `armar.py`, `DESIGN.md`, los `.md` y
+`wrangler.jsonc` no llegan al sitio. Los archivos de `logo/` viajan al lado del
+`index.html` por pedido explícito de la dueña (30/9/2026), para que funcione el
+ícono de celular (§6.0); la página en sí sigue siendo un único archivo
+autocontenido. **No borres ni "simplifiques" `wrangler.jsonc` ni
+`.assetsignore`**: sin ellos el Worker vuelve a publicar el repo entero.
 
 Primero `python3 armar.py` (§0.1). Si falla, **no se publica**: se arregla
-`cuerpo.html` y se vuelve a armar. Como `armar.py` no escribe `index.html`
-cuando falla, un push de esa corrida no dispara el workflow.
+`cuerpo.html` y se vuelve a armar.
 
 ### Cómo confirmar que salió
 
-`*.pages.dev` no se puede abrir desde la sesión, así que la señal de que la
-edición está publicada es **la corrida del workflow en GitHub**, que sí se lee
-con las herramientas `mcp__github__*`:
+Desde la sesión no se puede abrir el Worker (el proxy da 403) ni consultar a
+Cloudflare (`api.cloudflare.com` está bloqueado). Entonces:
 
-1. después del push a `main`, buscá la corrida de "Deploy a Cloudflare Pages"
-   cuyo `head_sha` sea el commit de la edición (`actions_list`, listando las
-   corridas del workflow `deploy-cloudflare.yml`);
-2. si está `queued` o `in_progress`, esperá y volvé a consultar: tarda uno o
-   dos minutos;
-3. `conclusion: success` = publicada. Cualquier otra cosa (`failure`,
-   `cancelled`) = **no publicada**: leé el log del job (`get_job_logs`) y contá
-   el error en el resumen. Si parece transitorio, relanzalo una sola vez con
-   `actions_run_trigger` (`workflow_dispatch`).
+1. confirmá que el push a `main` haya entrado (fast-forward hecho, sin
+   divergencia);
+2. si el repo muestra check runs o estados del commit de Cloudflare
+   (`mcp__github__get_commit`), leelos: `success` = publicada, cualquier otra
+   cosa = **no publicada**, con el error en el resumen;
+3. si no hay ninguna señal, **decí en el resumen que la edición quedó en
+   `main` y que el Worker la publica solo, pero que no pudiste verificarlo**.
+   No afirmes que viste la página.
 
-La URL de producción es `https://el-parte.pages.dev`. Decí en el resumen que
-el deploy se confirmó por la corrida de Actions, sin afirmar que viste la
-página. Si Cloudflare le asignó otro subdominio al proyecto (pasa cuando
-`el-parte` ya está tomado), la URL real figura en el resumen de la corrida:
-usá esa.
+Como comprobación manual, la dueña abre
+`https://asdasd.lucilagorostiza.workers.dev/` (debe decir la fecha de la
+edición) y `…/logo/apple-touch-icon.png` (debe verse la "P").
 
 ## 11. Cierre de la corrida: la edición tiene que quedar en `main`
 
@@ -480,7 +455,8 @@ git merge-base --is-ancestor origin/main HEAD \
   || echo "divergencia: NO mergear, reportarlo en el resumen"
 ```
 
-Y después confirmá el deploy como dice el §10.
+Y después confirmá el deploy como dice el §10 (sin buscar corridas de Actions:
+no hay workflow).
 
 **El dueño del repo autorizó este merge de forma permanente** (6/9/2026), así que
 no hace falta volver a pedirlo en cada corrida. La autorización cubre exactamente
@@ -491,7 +467,7 @@ esto y nada más:
   y contá en el resumen que la edición **no se publicó** (sin llegar a `main`
   no hay deploy).
 - **Nunca** `--force`, `--force-with-lease` ni reescritura de historia sobre `main`.
-- Si el `armar.py` no pasó o la corrida de Actions no terminó en `success`,
+- Si el `armar.py` no pasó o el estado de Cloudflare (§10) no es `success`,
   igual commiteá y pusheá el trabajo, pero **decí claramente en el resumen que
   la edición no se publicó**, para que no parezca una corrida normal.
 
@@ -559,3 +535,20 @@ Resumen de lo decidido, para que ninguna corrida futura lo deshaga:
   públicos.
 - **Sigue pendiente, fuera del repo:** los secrets de Cloudflare para el
   workflow de Pages, y decidir si Pages o el Worker es el destino único.
+
+### 30/9/2026 (tarde) — El Worker es el único destino; se elimina Pages
+
+- **Destino único: Worker `asdasd`** (`https://asdasd.lucilagorostiza.workers.dev/`).
+  `el-parte.pages.dev` nunca existió y se dejó de nombrar. Se borró
+  `.github/workflows/deploy-cloudflare.yml`, que fallaba siempre por falta de
+  secrets; ya no hace falta cargar ningún secret. `armar.py --validar` sigue
+  existiendo pero ya no lo usa ningún workflow.
+- **`wrangler.jsonc` + `.assetsignore`**: el Worker publica sólo `index.html`
+  y `logo/`, no el resto del repo (§10).
+- **La señal de "publicado" cambió**: ya no es una corrida de Actions (§10,
+  "Cómo confirmar que salió").
+- **Verificado por la dueña** (30/9): el Worker mostraba la edición del día y
+  `logo/apple-touch-icon.png` se veía, antes de este cambio. Tras agregar
+  `wrangler.jsonc` hay que repetir esa comprobación.
+- **Pendiente, lo hace la dueña**: actualizar el prompt de la rutina (nombra
+  Pages, `el-parte.pages.dev` y la corrida de Actions).
