@@ -4,8 +4,9 @@
 # que hace la rutina diaria (CLAUDE.md §11) ES el deploy. También se puede
 # lanzar a mano desde la pestaña Actions ("Run workflow").
 #
-# Se publica index.html más los archivos del ícono de logo/ (favicon.ico, ícono
-# de celular y manifest). plantilla.html, cuerpo.html, armar.py y los .md
+# Se publica index.html más los archivos del ícono en logo/ (favicon.ico, ícono
+# de celular y manifest); el <head> los referencia como logo/... (CLAUDE.md
+# §6.0). Ojo: el sitio que ve la dueña es el Worker "asdasd", no este Pages. plantilla.html, cuerpo.html, armar.py y los .md
 # quedan fuera del sitio.
 #
 # Requiere dos secrets del repo (Settings → Secrets and variables → Actions):

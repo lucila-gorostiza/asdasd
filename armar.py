@@ -76,7 +76,10 @@ def validar(html):
         e.append("§0: debe haber exactamente un bloque <style> embebido")
 
     # --- §6.0: el ícono del diario va en todas las ediciones ---
+    # Las rutas llevan el prefijo logo/ a propósito: el Worker de Cloudflare
+    # sirve el repo tal cual y ahí los archivos están en logo/ (CLAUDE.md §6.0).
     for marca in ('rel="icon" type="image/svg+xml" href="data:',
+                  'rel="shortcut icon" href="logo/favicon.ico"',
                   'rel="apple-touch-icon" href="logo/apple-touch-icon.png"',
                   'rel="manifest" href="logo/site.webmanifest"'):
         if marca not in html:

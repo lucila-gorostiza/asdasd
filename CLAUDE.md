@@ -212,9 +212,21 @@ Va **en todas las ediciones**, y ya está resuelto en el `<head>` de
 - **ícono al agregarlo a la pantalla de inicio del celular**:
   `apple-touch-icon.png` (iPhone) y `site.webmanifest` con `icon-192/512` y la
   versión *maskable* (Android). Esos no se pueden embeber (el manifest necesita
-  URL propia), así que el deploy los publica **al lado** del `index.html`
-  (§10). Son archivos del mismo sitio, no dependencias externas;
+  URL propia), así que se publican **en la carpeta `logo/` del sitio**, al
+  lado del `index.html` (§10). Son archivos del mismo sitio, no dependencias
+  externas;
 - `theme-color` `#141827`.
+
+**Las rutas del `<head>` son `logo/...` y no se cambian a la raíz.** El `<head>`
+lleva exactamente `href="logo/favicon.ico"`, `href="logo/apple-touch-icon.png"`
+y `href="logo/site.webmanifest"`. El sitio real es un Worker de Cloudflare que
+sirve el repo tal cual (§10), y ahí esos archivos existen en `logo/`, no en la
+raíz: con `href="apple-touch-icon.png"` daban 404 y el ícono de celular no
+aparecía (30/9/2026). Los `icon-*.png` del manifest no llevan carpeta porque
+resuelven relativo a la URL del manifest, o sea, dentro de `logo/`.
+`armar.py` valida estas rutas exactas. **No las "simplifiques" ni muevas
+`logo/`** sin actualizar a la vez `plantilla.html`, `armar.py`, el workflow y
+esta sección.
 
 `armar.py` falla si al `<head>` le falta el ícono o si falta algún archivo de
 `logo/`. Si alguna vez se cambia el logo, se reemplazan los archivos de `logo/`
@@ -385,6 +397,18 @@ archivo manda sobre el prompt en todo lo que sea deploy.
 
 ### Cómo funciona
 
+> **Hay dos destinos y el que ve la dueña es el Worker.** El diario que ella
+> abre es `https://asdasd.lucilagorostiza.workers.dev/`, un Worker de
+> Cloudflare (`asdasd`) que se redespliega solo con cada push a `main`
+> (Workers Builds; se configura en el panel de Cloudflare, no está en el repo).
+> El proyecto de Pages `el-parte` y su workflow de Actions (abajo) son el
+> camino previsto originalmente y **siguen fallando por falta de secrets**.
+> Que el workflow esté en rojo no significa que el Worker no haya publicado, y
+> que esté en verde no significa que el Worker esté bien. Desde la sesión no se
+> puede abrir ninguno de los dos (el proxy da 403): si tenés dudas con el
+> logo, pedile a la dueña que abra
+> `…workers.dev/logo/apple-touch-icon.png` (debe verse la "P").
+
 El deploy **no se hace desde la sesión**: el proxy del contenedor bloquea
 `api.cloudflare.com` y no hay conector de Cloudflare. Lo hace GitHub Actions,
 con `.github/workflows/deploy-cloudflare.yml`:
@@ -392,8 +416,9 @@ con `.github/workflows/deploy-cloudflare.yml`:
 - se dispara solo con cada push a `main` que cambie `index.html`;
 - revalida el `index.html` commiteado con `python3 armar.py --validar` (no lo
   rearma: eso le cambiaría la hora de cierre) y, si falla, no publica;
-- sube `index.html` más los archivos del ícono de `logo/` (§6.0) a Cloudflare
-  Pages como deploy de producción (`--branch=main`). `plantilla.html`,
+- sube `index.html` más los archivos del ícono, que quedan en `logo/` del sitio
+  (§6.0) y `favicon.ico` también en la raíz, a Cloudflare Pages como deploy de
+  producción (`--branch=main`). `plantilla.html`,
   `cuerpo.html`, `armar.py` y los `.md` nunca llegan al sitio;
 - usa los secrets `CLOUDFLARE_API_TOKEN` (permiso *Cloudflare Pages: Edit*) y
   `CLOUDFLARE_ACCOUNT_ID` del repo.
@@ -511,3 +536,26 @@ vez que se toque la plantilla, `armar.py`, el deploy o esta guía.
   (los íconos del manifest resuelven relativos a `logo/`) y `logo/favicon.ico`.
   El workflow de Pages publica los mismos archivos en `sitio/logo/`.
 - `armar.py` valida las nuevas rutas.
+
+### 30/9/2026 (noche) — Cómo se respeta el logo de acá en adelante
+
+Resumen de lo decidido, para que ninguna corrida futura lo deshaga:
+
+- **Síntoma:** la dueña no veía el logo en `asdasd.lucilagorostiza.workers.dev`,
+  ni en web ni en celular. La sesión no puede abrir ese sitio, así que la causa
+  se dedujo, no se vio: `apple-touch-icon.png` y `site.webmanifest` se pedían
+  en la raíz y el Worker los tiene en `logo/`. **Arreglo aplicado, todavía no
+  confirmado por la dueña** (commit `196096b`).
+- **Regla:** en `plantilla.html` (y por lo tanto en cada `index.html`) el
+  ícono se referencia con rutas `logo/...` (§6.0). `armar.py` las exige y
+  falla si vuelven a la raíz. `cuerpo.html` no las toca.
+- **La rutina diaria no toca `plantilla.html`, `logo/` ni `armar.py`** (ver
+  prompt): así el `<head>` con el ícono sale idéntico todos los días.
+- **Si el logo sigue sin verse**, no es un problema de la edición: revisar
+  primero cómo sirve los archivos el Worker (comando de build y directorio de
+  assets en el panel de Cloudflare). Si hace falta, agregar un
+  `wrangler.jsonc` con `assets.directory` a una carpeta con sólo `index.html`
+  y `logo/`, para que `plantilla.html`, `armar.py` y los `.md` no queden
+  públicos.
+- **Sigue pendiente, fuera del repo:** los secrets de Cloudflare para el
+  workflow de Pages, y decidir si Pages o el Worker es el destino único.

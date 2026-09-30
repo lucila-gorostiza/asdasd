@@ -22,11 +22,18 @@ Ya está integrado; no hay que copiar nada a mano (ver CLAUDE.md §6.0 y §10):
 
 - `plantilla.html` lleva en el `<head>` `icon.svg` y `favicon-32.png` embebidos
   como `data:` (el `index.html` sigue siendo un solo archivo), más
-  `apple-touch-icon`, `manifest` y `theme-color` `#141827`.
-- El workflow de deploy publica junto al `index.html`: `favicon.ico`,
-  `icon.svg`, `apple-touch-icon.png`, `icon-192.png`, `icon-512.png`,
-  `icon-maskable-512.png` y `site.webmanifest` (con rutas relativas).
-- `armar.py` falla si falta el ícono en el `<head>` o alguno de esos archivos.
+  `logo/favicon.ico`, `logo/apple-touch-icon.png`, `logo/site.webmanifest` y
+  `theme-color` `#141827`.
+- **Las rutas llevan el prefijo `logo/` a propósito.** El sitio es un Worker de
+  Cloudflare que sirve el repo tal cual, así que estos archivos viven en
+  `logo/` y no en la raíz. Con rutas en la raíz daban 404 y el ícono de
+  celular no aparecía. **No mover esta carpeta ni quitar el prefijo.**
+- `site.webmanifest` usa rutas relativas (`icon-192.png`, …): resuelven dentro
+  de `logo/`, donde está el manifest.
+- El workflow de Pages publica esos mismos archivos en `sitio/logo/` (y
+  `favicon.ico` también en la raíz).
+- `armar.py` falla si falta el ícono en el `<head>`, si las rutas no son las
+  de arriba o si falta alguno de estos archivos.
 
-Si se cambia el logo: reemplazar estos archivos y regenerar los `data:` del
-`<head>` de `plantilla.html`.
+Si se cambia el logo: reemplazar estos archivos (mismos nombres) y regenerar
+los `data:` del `<head>` de `plantilla.html`.
