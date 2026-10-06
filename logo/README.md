@@ -30,6 +30,8 @@ Ya está integrado; no hay que copiar nada a mano (ver CLAUDE.md §6.0 y §10):
   celular no aparecía. **No mover esta carpeta ni quitar el prefijo.**
 - `site.webmanifest` usa rutas relativas (`icon-192.png`, …): resuelven dentro
   de `logo/`, donde está el manifest.
+  Por eso `start_url`, `scope` e `id` valen `"../"`: apuntan a la raíz, donde
+  está el diario. Con `"./"` la app instalada abría `logo/` y daba error.
 - El workflow de Pages publica esos mismos archivos en `sitio/logo/` (y
   `favicon.ico` también en la raíz).
 - `armar.py` falla si falta el ícono en el `<head>`, si las rutas no son las

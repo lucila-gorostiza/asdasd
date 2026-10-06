@@ -224,6 +224,11 @@ sirve el repo tal cual (§10), y ahí esos archivos existen en `logo/`, no en la
 raíz: con `href="apple-touch-icon.png"` daban 404 y el ícono de celular no
 aparecía (30/9/2026). Los `icon-*.png` del manifest no llevan carpeta porque
 resuelven relativo a la URL del manifest, o sea, dentro de `logo/`.
+
+Por esa misma regla, **`start_url`, `scope` e `id` del manifest valen `"../"`**,
+es decir, la raíz del sitio. Con `"./"` la app instalada en el celular abría
+`/logo/`, donde no hay página, y daba error, aunque en el navegador el diario
+se veía bien (6/10/2026). `armar.py` lo valida.
 `armar.py` valida estas rutas exactas. **No las "simplifiques" ni muevas
 `logo/`** sin actualizar a la vez `plantilla.html`, `armar.py`, `.assetsignore` y
 esta sección.
@@ -552,3 +557,16 @@ Resumen de lo decidido, para que ninguna corrida futura lo deshaga:
   `wrangler.jsonc` hay que repetir esa comprobación.
 - **Pendiente, lo hace la dueña**: actualizar el prompt de la rutina (nombra
   Pages, `el-parte.pages.dev` y la corrida de Actions).
+
+### 6/10/2026 — La app instalada abría `logo/` en lugar del diario
+
+- **Síntoma:** desde el navegador el diario se veía bien, pero instalado como
+  aplicación daba error.
+- **Causa:** `logo/site.webmanifest` tenía `"start_url": "./"`. Las URLs del
+  manifest resuelven relativas a él, así que la app arrancaba en
+  `/logo/`, que no tiene `index.html`. El `scope` implícito también quedaba en
+  `/logo/`, o sea que el diario mismo quedaba fuera de la app.
+- **Arreglo:** `start_url`, `scope` e `id` pasan a `"../"` (la raíz). `armar.py`
+  falla si `start_url` o `scope` no son `"../"` (§6.0).
+- **Para la dueña:** la app ya instalada guarda el manifest viejo. Hay que
+  desinstalarla y volver a agregarla a la pantalla de inicio.

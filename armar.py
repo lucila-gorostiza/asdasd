@@ -10,6 +10,7 @@ Uso:  python3 armar.py              # arma y valida index.html
       python3 armar.py --validar    # sólo valida el index.html existente, sin
                                     # reescribirlo (lo usa el deploy en CI, §10)
 """
+import json
 import re
 import sys
 from datetime import datetime, timedelta, timezone
@@ -87,6 +88,19 @@ def validar(html):
     faltan = [f for f in ARCHIVOS_ICONO if not (LOGO / f).exists()]
     if faltan:
         e.append(f"§6.0: faltan archivos del ícono en logo/: {faltan}")
+    # El manifest vive en logo/ y sus URLs resuelven relativas a él: con
+    # start_url "./" la app instalada abría /logo/, donde no hay página (6/10/2026).
+    manifest = LOGO / "site.webmanifest"
+    if manifest.exists():
+        try:
+            m = json.loads(manifest.read_text(encoding="utf-8"))
+        except ValueError:
+            e.append("§6.0: logo/site.webmanifest no es JSON válido")
+        else:
+            for clave in ("start_url", "scope"):
+                if m.get(clave) != "../":
+                    e.append(f'§6.0: site.webmanifest debe tener "{clave}": "../" '
+                             f'(la app instalada tiene que abrir la raíz, no logo/)')
 
     # --- marcadores: ninguno debe quedar sin reemplazar ---
     sin_reemplazar = re.findall(r"\{\{[A-Z_]+\}\}", html)
