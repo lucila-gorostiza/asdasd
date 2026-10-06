@@ -32,10 +32,13 @@ Ya está integrado; no hay que copiar nada a mano (ver CLAUDE.md §6.0 y §10):
   de `logo/`, donde está el manifest.
   Por eso `start_url`, `scope` e `id` valen `"../"`: apuntan a la raíz, donde
   está el diario. Con `"./"` la app instalada abría `logo/` y daba error.
-- El workflow de Pages publica esos mismos archivos en `sitio/logo/` (y
-  `favicon.ico` también en la raíz).
+  Verificado el 6/10/2026: así la app instalada abre el diario. Si se cambia
+  el manifest, la app ya instalada no se entera: hay que reinstalarla.
+- Se publican tal cual en `logo/` del Worker de Cloudflare (`wrangler.jsonc` +
+  `.assetsignore`, CLAUDE.md §10). Ya no hay workflow de Pages.
 - `armar.py` falla si falta el ícono en el `<head>`, si las rutas no son las
-  de arriba o si falta alguno de estos archivos.
+  de arriba, si falta alguno de estos archivos o si `start_url`/`scope` del
+  manifest no son `"../"`.
 
 Si se cambia el logo: reemplazar estos archivos (mismos nombres) y regenerar
 los `data:` del `<head>` de `plantilla.html`.

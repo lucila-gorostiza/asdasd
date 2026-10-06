@@ -228,7 +228,13 @@ resuelven relativo a la URL del manifest, o sea, dentro de `logo/`.
 Por esa misma regla, **`start_url`, `scope` e `id` del manifest valen `"../"`**,
 es decir, la raíz del sitio. Con `"./"` la app instalada en el celular abría
 `/logo/`, donde no hay página, y daba error, aunque en el navegador el diario
-se veía bien (6/10/2026). `armar.py` lo valida.
+se veía bien (6/10/2026). `armar.py` lo valida. **Verificado por la dueña el
+6/10/2026:** con `"../"` la app instalada abre el diario.
+
+Si alguna vez se cambia algo de `site.webmanifest` (nombre, colores, íconos,
+`start_url`), la app ya instalada **no se entera**: guarda el manifest del
+momento en que se instaló. Para ver el cambio hay que desinstalarla y volver a
+instalarla, y eso hay que decírselo a la dueña en el resumen.
 `armar.py` valida estas rutas exactas. **No las "simplifiques" ni muevas
 `logo/`** sin actualizar a la vez `plantilla.html`, `armar.py`, `.assetsignore` y
 esta sección.
@@ -438,7 +444,9 @@ Cloudflare (`api.cloudflare.com` está bloqueado). Entonces:
 
 Como comprobación manual, la dueña abre
 `https://asdasd.lucilagorostiza.workers.dev/` (debe decir la fecha de la
-edición) y `…/logo/apple-touch-icon.png` (debe verse la "P").
+edición), `…/logo/apple-touch-icon.png` (debe verse la "P") y
+`…/logo/site.webmanifest` (debe decir `"start_url": "../"`). La app instalada
+en el celular tiene que abrir directamente la edición del día.
 
 ## 11. Cierre de la corrida: la edición tiene que quedar en `main`
 
@@ -570,3 +578,8 @@ Resumen de lo decidido, para que ninguna corrida futura lo deshaga:
   falla si `start_url` o `scope` no son `"../"` (§6.0).
 - **Para la dueña:** la app ya instalada guarda el manifest viejo. Hay que
   desinstalarla y volver a agregarla a la pantalla de inicio.
+- **Verificado por la dueña** (6/10): tras reinstalarla, la app abre el diario.
+- **Regla de acá en adelante:** no tocar `logo/site.webmanifest` en la corrida
+  diaria (la rutina no toca `logo/`). `start_url`, `scope` e `id` quedan en
+  `"../"`; si alguna vez se mueve el manifest de carpeta, hay que recalcularlos
+  para que sigan apuntando a la raíz del sitio, y actualizar `armar.py`.
