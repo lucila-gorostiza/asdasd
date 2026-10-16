@@ -340,9 +340,21 @@ Esta es la parte que importa más que los píxeles.
   | `red` | crisis, conflicto abierto, servicio afectado |
   | `green` | resuelto, normal, positivo |
   | `grey` | sin novedades |
-- **Día flojo = edición más corta.** Más `.brief`, menos `article.item`. La
-  página tiene que *verse* más corta, no rellenarse. Está explícitamente
-  prohibido inflar.
+- **Notas largas y con profundidad** (pedido de la dueña, 16/10/2026: las
+  ediciones venían "muy pobres"). Cada `article.item` lleva **entre 3 y 5
+  párrafos**: qué pasó hoy; antecedentes y cómo se llegó hasta acá; cifras y
+  datos concretos (votos, montos, porcentajes, fechas); qué dice cada actor
+  (gobierno, oposición, gremios, analistas), con atribución; y qué viene
+  después (próximos pasos, fechas, escenarios). Cada sección con novedad
+  real debería tener al menos una nota así, no sólo `.brief`.
+- **Buscar más antes de declarar "sin novedades".** Varias búsquedas por
+  sección, con el modo `extended` cuando la estándar trae poco o viejo, y
+  leyendo las notas (no sólo los titulares) para sacar el contexto. Un tema
+  pasa a `.brief` de "sin novedades" sólo después de buscarlo en serio.
+- **Largo no es relleno.** Lo que se agrega es información verificada y
+  contexto, nunca frases vacías, repeticiones ni datos inventados. Si de
+  verdad no hubo novedad, sigue siendo un `.brief`: un tema sin hechos no se
+  estira.
 - **Cuando las fuentes no coinciden**, decilo en la página con un `.brief` de
   etiqueta "Aclaración" (así se resolvió la diferencia de puntos de Hamilton en
   la tabla de F1) en vez de inventar una cifra prolija.
@@ -359,7 +371,8 @@ Esta es la parte que importa más que los píxeles.
   .dateblock{text-align:left}
   article.item{padding:var(--s4)}
   .brief{flex-direction:column;gap:var(--s1)}
-  .sechead{position:static}   /* la barra pegajosa molesta en pantalla chica */
+  .sechead{position:static;row-gap:var(--s1)}   /* la barra pegajosa molesta en pantalla chica */
+  .sechead .secmeta{margin-left:0;flex-basis:100%}  /* los subtemas bajan a su propio renglón */
 }
 @media print{
   body{background:#fff}
@@ -368,6 +381,14 @@ Esta es la parte que importa más que los píxeles.
 ```
 
 ---
+
+**Nada puede ser más ancho que la pantalla.** En el celular, la página no
+tiene que poder arrastrarse hacia los costados ni dejar un borde blanco a la
+derecha. Por eso `.sechead` lleva `flex-wrap:wrap`, `.secmeta` puede partirse
+en renglones (`overflow-wrap:anywhere`, nada de `white-space:nowrap`) y
+`html` lleva `overflow-x:clip` como red de seguridad (`clip` y no `hidden`,
+porque `hidden` rompe la barra pegajosa). Las tablas son la única excepción y
+scrollean dentro de su `.tablewrap`.
 
 ## 9. Qué se mantiene y qué cambia entre ediciones
 
@@ -583,3 +604,19 @@ Resumen de lo decidido, para que ninguna corrida futura lo deshaga:
   diaria (la rutina no toca `logo/`). `start_url`, `scope` e `id` quedan en
   `"../"`; si alguna vez se mueve el manifest de carpeta, hay que recalcularlos
   para que sigan apuntando a la raíz del sitio, y actualizar `armar.py`.
+
+### 16/10/2026 — Notas más largas y página fija en el celular
+
+- **Contenido:** la dueña pidió notas más largas porque las ediciones eran
+  "muy pobres". Se cambió el §7: cada `article.item` lleva de 3 a 5 párrafos
+  con antecedentes, cifras, la voz de cada actor y qué viene después, y hay
+  que buscar más a fondo antes de marcar un tema como "sin novedades". Se
+  mantiene la prohibición de inventar o de rellenar sin hechos.
+- **Celular:** al deslizar hacia los costados se movía toda la página y
+  quedaba un borde blanco a la derecha. Causa: los subtemas de la barra de
+  sección (`.secmeta`) tenían `white-space:nowrap` y en pantallas de 320 a
+  414 px empujaban la página hasta ~450 px. Arreglo en `plantilla.html`:
+  `.sechead` con `flex-wrap:wrap`, `.secmeta` que puede partirse y que en
+  mobile baja a su propio renglón, y `overflow-x:clip` en `html`. Medido con
+  Chromium sin interfaz a 320, 375 y 414 px: el ancho de la página coincide
+  con el de la pantalla.
