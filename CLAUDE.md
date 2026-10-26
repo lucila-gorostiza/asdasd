@@ -351,6 +351,28 @@ Esta es la parte que importa más que los píxeles.
   sección, con el modo `extended` cuando la estándar trae poco o viejo, y
   leyendo las notas (no sólo los titulares) para sacar el contexto. Un tema
   pasa a `.brief` de "sin novedades" sólo después de buscarlo en serio.
+- **Todas las noticias del tema, no sólo una** (pedido de la dueña,
+  26/10/2026: la edición del 25/10 no incluyó los saqueos en Francia). Si un
+  tema o una sección tiene más de una novedad real en el día, cada una lleva
+  su propio `article.item`. No elijas la principal y descartes el resto: la
+  principal se marca con `.lead` y las demás van como notas comunes debajo.
+  El `.brief` queda para lo que de verdad no tuvo novedad.
+- **Barrido amplio antes de escribir, sobre todo en Internacional.** Además
+  de los temas fijos del prompt, hacé búsquedas abiertas del tipo "noticias
+  internacionales hoy", "Europa hoy" y "América Latina hoy", y revisá los
+  titulares del día de al menos dos medios grandes (por ejemplo La Nación,
+  Infobae, Clarín, BBC Mundo, El País, CNN en Español). Cualquier hecho de
+  peso que aparezca —disturbios, saqueos, atentados, crisis de gobierno,
+  catástrofes, elecciones— entra en la edición aunque no esté en la lista de
+  temas fijos. El "radar" de Europa, China y elecciones no es una línea al
+  pie: si hubo algo, es una nota. Lo mismo para Nacional (gremios,
+  conflicto social, provincias, Justicia): no te quedes sólo en economía.
+- **Análisis más profundo.** Además de los hechos, cada nota tiene que
+  explicar causas y consecuencias: por qué pasó, qué está en juego, cómo
+  encaja en la tendencia de las últimas semanas y qué escenarios abren las
+  distintas posiciones, siempre atribuidas a quien las sostiene (gobierno,
+  oposición, analistas, medios). El "Por qué importa" tiene que decir algo
+  que no esté ya en los párrafos, no repetir el titular.
 - **Largo no es relleno.** Lo que se agrega es información verificada y
   contexto, nunca frases vacías, repeticiones ni datos inventados. Si de
   verdad no hubo novedad, sigue siendo un `.brief`: un tema sin hechos no se
@@ -620,3 +642,16 @@ Resumen de lo decidido, para que ninguna corrida futura lo deshaga:
   mobile baja a su propio renglón, y `overflow-x:clip` en `html`. Medido con
   Chromium sin interfaz a 320, 375 y 414 px: el ancho de la página coincide
   con el de la pantalla.
+
+### 26/10/2026 — Más notas por tema y análisis más profundo
+
+- **Pedido de la dueña:** que el análisis sea más profundo y que, si un tema
+  tiene más de una noticia, se agreguen todas. Ejemplo de lo que faltó: los
+  saqueos en Francia no aparecieron en la edición del 25/10.
+- **Cambio en el §7:** cada novedad real lleva su propio `article.item` (la
+  principal con `.lead` y el resto como notas comunes); hay que hacer un
+  barrido amplio de titulares del día, sobre todo internacionales, y no
+  quedarse sólo con los temas fijos del prompt; y cada nota tiene que
+  explicar causas, contexto y escenarios, con un "Por qué importa" que
+  agregue algo.
+- Sin cambios en la plantilla ni en `armar.py`.
