@@ -357,16 +357,37 @@ Esta es la parte que importa más que los píxeles.
   su propio `article.item`. No elijas la principal y descartes el resto: la
   principal se marca con `.lead` y las demás van como notas comunes debajo.
   El `.brief` queda para lo que de verdad no tuvo novedad.
-- **Barrido amplio antes de escribir, sobre todo en Internacional.** Además
-  de los temas fijos del prompt, hacé búsquedas abiertas del tipo "noticias
-  internacionales hoy", "Europa hoy" y "América Latina hoy", y revisá los
-  titulares del día de al menos dos medios grandes (por ejemplo La Nación,
-  Infobae, Clarín, BBC Mundo, El País, CNN en Español). Cualquier hecho de
-  peso que aparezca —disturbios, saqueos, atentados, crisis de gobierno,
-  catástrofes, elecciones— entra en la edición aunque no esté en la lista de
-  temas fijos. El "radar" de Europa, China y elecciones no es una línea al
-  pie: si hubo algo, es una nota. Lo mismo para Nacional (gremios,
-  conflicto social, provincias, Justicia): no te quedes sólo en economía.
+- **Internacional no se limita a los temas fijos** (pedido de la dueña,
+  26/10 y 31/10/2026). Los temas del prompt (Brasil y Mercosur, Irán,
+  Gaza, Ucrania, Trump, Venezuela) son el piso, no el techo. A la dueña le
+  interesan **todas las noticias de gran impacto en el mundo que hayan
+  pasado en las últimas 24–48 horas, sea cual sea el rubro**: política,
+  economía y finanzas, tecnología, cripto, ciberseguridad, accidentes y
+  catástrofes, conflictos sociales, Justicia, ciencia, salud.
+  - **Cómo buscarlas:** no busques temas puntuales de antemano. Hacé un
+    barrido abierto de lo más importante del día, con búsquedas como
+    "noticias internacionales hoy", "principales noticias del mundo hoy",
+    "Europa hoy", "Asia hoy", "América Latina hoy", "economía mundial hoy" y
+    "tecnología hoy", y mirá las portadas o los titulares del día de al
+    menos dos medios grandes (por ejemplo BBC Mundo, El País, CNN en
+    Español, Reuters, La Nación, Infobae, Clarín). Lo que aparezca en
+    varias portadas a la vez es, casi seguro, de gran impacto.
+  - **Qué entra:** cualquier hecho de peso, aunque no tenga nada que ver
+    con los temas fijos. Como referencia de la escala que le interesa a la
+    dueña, entre el 25 y el 31/10/2026 faltaron: los saqueos en Francia, el
+    accidente de tren en España, el caso Binance y un hackeo de gran
+    alcance. **Son ejemplos de la escala, no una lista para seguir**: no
+    hay que buscar todos los días "Francia", "trenes" o "Binance", sino
+    encontrar lo que sea equivalente ese día.
+  - **Cómo se publica:** cada una de esas noticias es un `article.item`
+    propio dentro de la sección 02, con kicker `Internacional · <región o
+    rubro>` (por ejemplo `Internacional · Europa`, `Internacional ·
+    Tecnología`). El radar de Europa, China y elecciones no es una línea
+    al pie: si hubo algo, es una nota. Se puede agregar el subtema al
+    `.secmeta` de la sección.
+  - Lo mismo vale para **Nacional**: además de economía, revisá gremios,
+    conflicto social, provincias, Justicia y cualquier otro hecho del día
+    con impacto nacional.
 - **Análisis más profundo.** Además de los hechos, cada nota tiene que
   explicar causas y consecuencias: por qué pasó, qué está en juego, cómo
   encaja en la tendencia de las últimas semanas y qué escenarios abren las
@@ -654,4 +675,17 @@ Resumen de lo decidido, para que ninguna corrida futura lo deshaga:
   quedarse sólo con los temas fijos del prompt; y cada nota tiene que
   explicar causas, contexto y escenarios, con un "Por qué importa" que
   agregue algo.
+- Sin cambios en la plantilla ni en `armar.py`.
+
+### 31/10/2026 — Noticias de gran impacto del mundo, de cualquier rubro
+
+- **Pedido de la dueña:** además de Irán, Gaza, Ucrania y Brasil, quiere las
+  noticias importantes del mundo de cualquier rubro. Faltaron en las
+  ediciones recientes los saqueos en Francia, el accidente de tren en
+  España, el caso Binance y un hackeo de gran alcance.
+- **Cambio en el §7:** los temas fijos del prompt son el piso, no el techo.
+  Cada corrida hace un barrido abierto de lo más importante del día y mira
+  las portadas de medios grandes, y cada hecho de gran impacto lleva su
+  propia nota en Internacional. Los cuatro casos citados son ejemplos de
+  escala, **no temas a buscar todos los días**.
 - Sin cambios en la plantilla ni en `armar.py`.
